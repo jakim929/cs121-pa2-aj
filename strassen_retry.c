@@ -49,16 +49,34 @@ int** allocateN2(int d)
   return temp;
 }
 
+int** allocateN2Init(int d)
+{
+  int ** temp = (int**) malloc(d * sizeof(int *));
+  for(int i = 0; i < d; i++)
+  {
+    temp[i] = (int*) malloc(d * sizeof(int));
+  }
+  for(int i = 0; i < d; i++)
+  {
+    for(int j = 0; j < d; j++)
+    {
+      temp[i][j] = 0;
+    }
+  }
+  return temp;
+}
+
+
 
 // For all values of n
 void ConvMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, int bRow, int bCol, int size)
 {
   for (int i=0; i < size; i++)
   {
-    for (int j=0; j < size; j++)
+    for (int k=0; k < size; k++)
     {
-      result[i][j]=0;
-      for (int k=0; k < size; k++)
+      // result[i][j]=0;
+      for (int j=0; j < size; j++)
       {
         result[i][j] = result[i][j]+matrix1[aRow + i][aCol + k]*matrix2[bRow + k][bCol + j];
       }
@@ -276,7 +294,7 @@ int main(int argc, char *argv[])
   char* inputfile = argv[3];
 
   // Initializing Solution Matrix
-  product = allocateN2(dimension);
+  product = allocateN2Init(dimension);
   m1 = allocateN2(dimension);
   m2 = allocateN2(dimension);
   // Intermediate Calculations
@@ -341,7 +359,7 @@ int main(int argc, char *argv[])
   n0 = 256;
 
   b = clock();
-  ConvMult(product, m1, m2, 0, 0, 0, 0, dimension);
+  // ConvMult(product, m1, m2, 0, 0, 0, 0, dimension);
   printf("Normal Multiplication: \n");
   // PrintDiagonal(product);
   printf("\n");
