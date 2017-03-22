@@ -34,7 +34,7 @@ void PrintDiagonal(int** matrix)
 {
   for (int i=0; i < dimension; i++)
   {
-    printf("%i\n", matrix[i][i]);
+    printf("%i ", matrix[i][i]);
   }
 }
 
@@ -171,20 +171,20 @@ void StrassMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, 
   h_r = e_r + sub_size;
   h_c = e_c + sub_size;
 
-  int** p1 = allocateN2(sub_size);
-  int** p2 = allocateN2(sub_size);
-  int** p3 = allocateN2(sub_size);
-  int** p4 = allocateN2(sub_size);
-  int** p5 = allocateN2(sub_size);
-  int** p6 = allocateN2(sub_size);
-  int** p7 = allocateN2(sub_size);
+  int** p1 = allocateN2Init(sub_size);
+  int** p2 = allocateN2Init(sub_size);
+  int** p3 = allocateN2Init(sub_size);
+  int** p4 = allocateN2Init(sub_size);
+  int** p5 = allocateN2Init(sub_size);
+  int** p6 = allocateN2Init(sub_size);
+  int** p7 = allocateN2Init(sub_size);
 
-  int** s1 = allocateN2(sub_size);
-  int** s2 = allocateN2(sub_size);
+  int** s1 = allocateN2Init(sub_size);
+  int** s2 = allocateN2Init(sub_size);
 
   if(size > n0)
   {
-    printf("Strassen Multiplication\n");
+    // printf("Strassen Multiplication\n");
     // FIX to get rid of unnecessary copying
     // P1
       copyMatrices(s1, matrix1, a_r, a_c, sub_size);
@@ -225,7 +225,7 @@ void StrassMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, 
   }
   else
   {
-    printf("Normal Multiplication\n");
+    // printf("Normal Multiplication\n");
     // FIX to get rid of unnecessary copying
     // P1
       copyMatrices(s1, matrix1, a_r, a_c, sub_size);
@@ -352,28 +352,28 @@ int main(int argc, char *argv[])
     }
   }
   //
-  printf("Matrix 1: \n");
-  printMatrix(m1);
-  printf("\n");
-  printf("Matrix 2: \n");
-  printMatrix(m2);
+  // printf("Matrix 1: \n");
+  // printMatrix(m1);
+  // printf("\n");
+  // printf("Matrix 2: \n");
+  // printMatrix(m2);
 
 
   clock_t b, f;
-  n0 = 4;
+  n0 = 128;
 
   b = clock();
-  // ConvMult(product, m1, m2, 0, 0, 0, 0, dimension);
-  // printf("Normal Multiplication: \n");
-  // printMatrix(product);
-  // printf("\n");
+  ConvMult(product, m1, m2, 0, 0, 0, 0, dimension);
+  printf("Normal Multiplication: \n");
+  PrintDiagonal(product);
+  printf("\n");
   f = clock();
   double convTimeTaken = ((double)(f - b)) / CLOCKS_PER_SEC;
 
   b = clock();
   StrassMult(product, m1, m2, 0, 0, 0, 0, dimension);
   printf("Strassen Multiplication: \n");
-  printMatrix(product);
+  PrintDiagonal(product);
   printf("\n");
   f = clock();
   double strassenTimeTaken = ((double)(f - b)) / CLOCKS_PER_SEC;
