@@ -10,7 +10,6 @@ int **product;
 
 int n0;
 
-
 int flexible;
 int dimension;
 
@@ -119,7 +118,7 @@ void copyMatrices(int** target, int** from, int aRow, int aCol, int size)
 }
 
 
-//for even n value (ONLY WORKS FOR n = 2)
+//for even n value
 void StrassMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, int bRow, int bCol, int size)
 {
   if(size == 2)
@@ -348,12 +347,12 @@ int main(int argc, char *argv[])
     }
   }
 
-  // printf("Matrix 1: \n");
-  // printMatrix(m1);
-  // printf("\n");
-  // printf("Matrix 2: \n");
-  // printMatrix(m2);
-  //
+  printf("Matrix 1: \n");
+  printMatrix(m1);
+  printf("\n");
+  printf("Matrix 2: \n");
+  printMatrix(m2);
+  
 
   clock_t b, f;
   n0 = 256;
@@ -362,6 +361,8 @@ int main(int argc, char *argv[])
   // ConvMult(product, m1, m2, 0, 0, 0, 0, dimension);
   printf("Normal Multiplication: \n");
   // PrintDiagonal(product);
+  printMatrix(product);
+  printf("Not in use alone \n");
   printf("\n");
   f = clock();
   double convTimeTaken = ((double)(f - b)) / CLOCKS_PER_SEC;
@@ -370,6 +371,7 @@ int main(int argc, char *argv[])
   StrassMult(product, m1, m2, 0, 0, 0, 0, dimension);
   printf("Strassen Multiplication: \n");
   // PrintDiagonal(product);
+  printMatrix(product);
   printf("\n");
   f = clock();
   double strassenTimeTaken = ((double)(f - b)) / CLOCKS_PER_SEC;
