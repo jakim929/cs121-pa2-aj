@@ -18,9 +18,9 @@ float dim;
 // Only for testing
 void printMatrix(int** matrix)
 {
-  for(int i = 0; i < dimension; i++)
+  for(int i = 0; i < 40; i++)
   {
-    for(int j = 0; j < dimension; j++)
+    for(int j = 0; j < 40; j++)
     {
       printf("%i ", matrix[i][j]);
     }
