@@ -287,6 +287,8 @@ void StrassMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, 
       subtractMatrices(result, result, s3, sub_size, sub_size, sub_size, sub_size, 0, 0, sub_size);
 
 
+
+
   }
   else
   {
@@ -409,7 +411,7 @@ int main(int argc, char *argv[])
   b = clock();
 
   // Only for testing
-  ConvMult(product, m1, m2, 0, 0, 0, 0, dimension);
+  // ConvMult(product, m1, m2, 0, 0, 0, 0, dimension);
   printf("Normal Multiplication: \n");
   // if (dimension % 2 != 0){
   //   printOddMatrix(product);
