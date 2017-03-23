@@ -7,7 +7,6 @@
 int **m1;
 int **m2;
 int **product;
-int **productConventional;
 
 int n0;
 
@@ -19,9 +18,9 @@ float dim;
 // Only for testing
 void printMatrix(int** matrix)
 {
-  for(int i = 0; i < dimension; i++)
+  for(int i = 0; i < 40; i++)
   {
-    for(int j = 0; j < dimension; j++)
+    for(int j = 0; j < 40; j++)
     {
       printf("%i ", matrix[i][j]);
     }
@@ -34,16 +33,15 @@ void printMatrix(int** matrix)
 // Only for testing
 void printOddMatrix(int** matrix)
 {
-  for(int i = 0; i < dimension+1; i++)
+  for(int i = 0; i < newDim; i++)
   {
-    for(int j = 0; j < dimension+1; j++)
+    for(int j = 0; j < newDim; j++)
     {
       printf("%i ", matrix[i][j]);
     }
     printf("\n");
   }
   printf("\n");
-
 }
 
 // Prints final solution as specified
@@ -55,29 +53,27 @@ void PrintDiagonal(int** matrix)
   }
 }
 
-
 int** allocateN2(int d)
 {
-  int ** temp = (int**) malloc(d * sizeof(int *));
+  int ** temp = (int**) calloc(d, sizeof(int *));
   for(int i = 0; i < d; i++)
   {
-    temp[i] = (int*) malloc(d * sizeof(int));
+    temp[i] = (int*) calloc(d, sizeof(int));
   }
   return temp;
 }
 
 int** allocateN2Init(int d)
 {
-  int ** temp = (int**) malloc(d * sizeof(int *));
+  int ** temp = (int**) calloc(d, sizeof(int *));
   for(int i = 0; i < d; i++)
   {
-    temp[i] = (int*) calloc(d ,sizeof(int));
+    temp[i] = (int*) calloc(d, sizeof(int));
   }
-
   return temp;
 }
 
-
+// Conventional Matrix Multiplication
 void ConvMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, int bRow, int bCol, int size)
 {
   for (int i=0; i < size; i++)
@@ -86,17 +82,13 @@ void ConvMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, in
     {
       for (int j=0; j < size; j++)
       {
-        if(k == 0)
-        {
-          result[i][j]=0;
-        }
-
         result[i][j] = result[i][j]+matrix1[aRow + i][aCol + k]*matrix2[bRow + k][bCol + j];
       }
     }
   }
 }
 
+// Adds two matrices together
 void sumMatrices(int** target, int** a, int** b, int targetRow, int targetCol, int aRow, int aCol, int bRow, int bCol, int size)
 {
   for(int i = 0; i < size; i++)
@@ -108,6 +100,7 @@ void sumMatrices(int** target, int** a, int** b, int targetRow, int targetCol, i
   }
 }
 
+// Subtracts two matrices
 void subtractMatrices(int** target, int** a, int** b, int targetRow, int targetCol, int aRow, int aCol, int bRow, int bCol, int size)
 {
   for(int i = 0; i < size; i++)
@@ -120,21 +113,22 @@ void subtractMatrices(int** target, int** a, int** b, int targetRow, int targetC
 }
 
 
-void copyMatrices(int** target, int** from, int rRow, int rCol, int aRow, int aCol, int size)
+void copyMatrices(int** target, int** from, int aRow, int aCol, int size)
 {
   for(int i = 0; i < size; i++)
   {
     for(int j = 0; j < size; j++)
     {
-      target[rRow + i][rCol + j] = from[aRow + i][aCol + j];
+      target[i][j] = from[aRow + i][aCol + j];
     }
   }
 }
 
 
-//for even n value
+//Strassen Multiplicatino Method
 void StrassMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, int bRow, int bCol, int size)
 {
+  // Special case, if the matrices are size 2x2
   if(size == 2)
   {
     int a = matrix1[aRow][aCol];
@@ -163,6 +157,7 @@ void StrassMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, 
 
   int sub_size = size/2;
 
+
   int a_r, b_r, c_r, d_r, e_r, f_r, g_r, h_r, a_c, b_c, c_c, d_c, e_c, f_c, g_c, h_c;
 
   a_r = aRow;
@@ -183,90 +178,115 @@ void StrassMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, 
   h_r = e_r + sub_size;
   h_c = e_c + sub_size;
 
+
+  int** p1 = allocateN2Init(sub_size);
+  int** p2 = allocateN2Init(sub_size);
+  int** p3 = allocateN2Init(sub_size);
+  int** p4 = allocateN2Init(sub_size);
+  int** p5 = allocateN2Init(sub_size);
+  int** p6 = allocateN2Init(sub_size);
+  int** p7 = allocateN2Init(sub_size);
+
+  int** s1 = allocateN2Init(sub_size);
+  int** s2 = allocateN2Init(sub_size);
+
   if(size > n0)
   {
-    int** s1 = allocateN2Init(sub_size);
-    int** s2 = allocateN2Init(sub_size);
-    int** s3 = allocateN2Init(sub_size);
-
-    // printf("Strassen %i!!!\n", size);
+    //printf("Strassen!!!\n");
+    // FIX to get rid of unnecessary copying
 
     // P1
-      // copyMatrices(s1, matrix1, 0, 0, a_r, a_c, sub_size);
+      copyMatrices(s1, matrix1, a_r, a_c, sub_size);
       subtractMatrices(s2, matrix2, matrix2, 0, 0, f_r, f_c, h_r, h_c, sub_size);
-      StrassMult(s3, matrix1, s2, a_r, a_c, 0, 0, sub_size);
+      StrassMult(p1, s1, s2, 0, 0, 0, 0, sub_size);
 
-      // AF + BH
-      copyMatrices(result, s3, 0 , sub_size, 0, 0, sub_size);
-      // CF + DH
-      copyMatrices(result, s3, sub_size , sub_size, 0, 0, sub_size);
+    // P2
+      sumMatrices(s1, matrix1, matrix1, 0, 0, a_r, a_c, b_r, b_c, sub_size);
+      copyMatrices(s2, matrix2, h_r, h_c, sub_size);
+      StrassMult(p2, s1, s2, 0, 0, 0, 0, sub_size);
+
+    // P3
+      sumMatrices(s1, matrix1, matrix1, 0, 0, c_r, c_c, d_r, d_c, sub_size);
+      copyMatrices(s2, matrix2, e_r, e_c, sub_size);
+      StrassMult(p3, s1, s2, 0, 0, 0, 0, sub_size);
+
+    // P4
+      copyMatrices(s1, matrix1, d_r, d_c, sub_size);
+      subtractMatrices(s2, matrix2, matrix2, 0, 0, g_r, g_c, e_r, e_c, sub_size);
+      StrassMult(p4, s1, s2, 0, 0, 0, 0, sub_size);
 
     // P5
       sumMatrices(s1, matrix1, matrix1, 0, 0, a_r, a_c, d_r, d_c, sub_size);
       sumMatrices(s2, matrix2, matrix2, 0, 0, e_r, e_c, h_r, h_c, sub_size);
-      StrassMult(s3, s1, s2, 0, 0, 0, 0, sub_size);
-
-      // AE + BG
-      copyMatrices(result, s3, 0, 0, 0, 0, sub_size );
-      // CF + DH
-      sumMatrices(result, result, s3, sub_size, sub_size, sub_size, sub_size, 0, 0,  sub_size);
-
-
-    // P3
-      sumMatrices(s1, matrix1, matrix1, 0, 0, c_r, c_c, d_r, d_c, sub_size);
-      // copyMatrices(s2, matrix2, 0, 0, e_r, e_c, sub_size);
-      StrassMult(s3, s1, matrix2, 0, 0, e_r, e_c, sub_size);
-
-      // CE + DG
-      copyMatrices(result, s3, sub_size, 0, 0, 0, sub_size);
-
-      // CF + DH
-      subtractMatrices(result, result, s3, sub_size, sub_size, sub_size, sub_size, 0, 0, sub_size);
-
-    // P2
-      sumMatrices(s1, matrix1, matrix1, 0, 0, a_r, a_c, b_r, b_c, sub_size);
-      // copyMatrices(s2, matrix2, 0, 0, h_r, h_c, sub_size);
-      StrassMult(s3, s1, matrix2, 0, 0, h_r, h_c, sub_size);
-
-      // AE + BG
-      subtractMatrices(result, result, s3, 0, 0, 0, 0, 0, 0, sub_size);
-
-      // AF + BH
-      sumMatrices(result, result, s3, 0, sub_size, 0, sub_size, 0, 0, sub_size);
-
-    // P4
-      // copyMatrices(s1, matrix1, 0, 0, d_r, d_c, sub_size);
-      subtractMatrices(s2, matrix2, matrix2, 0, 0, g_r, g_c, e_r, e_c, sub_size);
-      StrassMult(s3, matrix1, s2, d_r, d_c, 0, 0, sub_size);
-
-      // AE + BG
-      sumMatrices(result, result, s3, 0, 0, 0, 0, 0, 0, sub_size);
-
-      // CE + DG
-      sumMatrices(result, result, s3,  sub_size, 0, sub_size, 0, 0, 0, sub_size);
+      StrassMult(p5, s1, s2, 0, 0, 0, 0, sub_size);
 
     // P6
       subtractMatrices(s1, matrix1, matrix1, 0, 0, b_r, b_c, d_r, d_c, sub_size);
       sumMatrices(s2, matrix2, matrix2, 0, 0, g_r, g_c, h_r, h_c, sub_size);
-      StrassMult(s3, s1, s2, 0, 0, 0, 0, sub_size);
-
-      // AE + BG
-      sumMatrices(result, result, s3, 0, 0, 0, 0, 0, 0, sub_size);
+      StrassMult(p6, s1, s2, 0, 0, 0, 0, sub_size);
 
     // P7
       subtractMatrices(s1, matrix1, matrix1, 0, 0, a_r, a_c, c_r, c_c, sub_size);
       sumMatrices(s2, matrix2, matrix2, 0, 0, e_r, e_c, f_r, f_c, sub_size);
-      StrassMult(s3, s1, s2, 0, 0, 0, 0, sub_size);
-
-      // CF + DH
-      subtractMatrices(result, result, s3, sub_size, sub_size, sub_size, sub_size, 0, 0, sub_size);
-
+      StrassMult(p7, s1, s2, 0, 0, 0, 0, sub_size);
   }
-  else
+  else // If matrix is too small = more efficient to use regular multiplication
   {
-    // printf("Normal!!!\n");
-    ConvMult(result, matrix1, matrix2, aRow, aCol, bRow, bCol, size);
+    //printf("Normal!!!\n");
+    // FIX to get rid of unnecessary copying
+    // P1
+      copyMatrices(s1, matrix1, a_r, a_c, sub_size);
+      subtractMatrices(s2, matrix2, matrix2, 0, 0, f_r, f_c, h_r, h_c, sub_size);
+      ConvMult(p1, s1, s2, 0, 0, 0, 0, sub_size);
+
+    // P2
+      sumMatrices(s1, matrix1, matrix1, 0, 0, a_r, a_c, b_r, b_c, sub_size);
+      copyMatrices(s2, matrix2, h_r, h_c, sub_size);
+      ConvMult(p2, s1, s2, 0, 0, 0, 0, sub_size);
+
+    // P3
+      sumMatrices(s1, matrix1, matrix1, 0, 0, c_r, c_c, d_r, d_c, sub_size);
+      copyMatrices(s2, matrix2, e_r, e_c, sub_size);
+      ConvMult(p3, s1, s2, 0, 0, 0, 0, sub_size);
+
+    // P4
+      copyMatrices(s1, matrix1, d_r, d_c, sub_size);
+      subtractMatrices(s2, matrix2, matrix2, 0, 0, g_r, g_c, e_r, e_c, sub_size);
+      ConvMult(p4, s1, s2, 0, 0, 0, 0, sub_size);
+
+    // P5
+      sumMatrices(s1, matrix1, matrix1, 0, 0, a_r, a_c, d_r, d_c, sub_size);
+      sumMatrices(s2, matrix2, matrix2, 0, 0, e_r, e_c, h_r, h_c, sub_size);
+      ConvMult(p5, s1, s2, 0, 0, 0, 0, sub_size);
+
+    // P6
+      subtractMatrices(s1, matrix1, matrix1, 0, 0, b_r, b_c, d_r, d_c, sub_size);
+      sumMatrices(s2, matrix2, matrix2, 0, 0, g_r, g_c, h_r, h_c, sub_size);
+      ConvMult(p6, s1, s2, 0, 0, 0, 0, sub_size);
+
+    // P7
+      subtractMatrices(s1, matrix1, matrix1, 0, 0, a_r, a_c, c_r, c_c, sub_size);
+      sumMatrices(s2, matrix2, matrix2, 0, 0, e_r, e_c, f_r, f_c, sub_size);
+      ConvMult(p7, s1, s2, 0, 0, 0, 0, sub_size);
   }
+
+// Combine Results
+// FIX make more efficient, don't do it one by one
+// AE + BG
+  sumMatrices(result, p5, p4, 0, 0, 0, 0, 0, 0, sub_size);
+  subtractMatrices(result, result, p2, 0, 0, 0, 0, 0, 0, sub_size);
+  sumMatrices(result,result,  p6, 0, 0, 0, 0, 0, 0, sub_size);
+
+// AF + BH
+  sumMatrices(result, p1, p2, 0 , sub_size, 0, 0, 0, 0, sub_size);
+
+// CE + DG
+  sumMatrices(result, p3, p4, sub_size , 0, 0, 0, 0, 0, sub_size);
+
+// CF + DH
+  sumMatrices(result, p5, p1, sub_size , sub_size, 0, 0, 0, 0, sub_size);
+  subtractMatrices(result, result, p3, sub_size, sub_size, sub_size, sub_size, 0, 0, sub_size);
+  subtractMatrices(result, result, p7, sub_size, sub_size, sub_size, sub_size, 0, 0, sub_size);
 
 }
 
@@ -280,9 +300,12 @@ int main(int argc, char *argv[])
 
   // Initializing Solution Matrix
 
+
   printf("Dim = %d\n", dimension );
   printf("Sqrt of Dim = %f\n", sqrt(dimension) );
   dim = sqrt(dimension);
+
+  //MAKE SPECIAL CASE FOR SIZE 2X2 AS SQRT OF IT IS INCORRECT FOR SOME REASON
 
   // Padds m1 and m2 if dimension is odd
   if (floorf(dim) != dim)
@@ -308,7 +331,7 @@ int main(int argc, char *argv[])
     m2 = allocateN2(dimension);
   }
 
-
+  // Intermediate Calculations
 
   // If flag is 0, read from input file, otherwise fill random
   if(flexible == 0)
@@ -342,7 +365,7 @@ int main(int argc, char *argv[])
     }
     fclose(fp);
 
-  }else{
+  }else{ // flag is 1 then generate a random matrix with the given dimensions for testing
     srand(time(NULL));
     for(int i = 0 ; i < dimension; i++)
     {
@@ -355,28 +378,31 @@ int main(int argc, char *argv[])
         randomNumber = rand() % 10;
         m2[i][j] = randomNumber;
 
+
       }
     }
+
   }
 
- // experimentally determined n0
-  n0 = 64;
+  // For Testing
+  // printf("Matrix 1: \n");
+  // printMatrix(m1);
+  // printf("\n");
+  // printf("Matrix 2: \n");
+  // printMatrix(m2);
 
-  printf("Matrix 1: \n");
-  printMatrix(m1);
-  printf("\n");
-  printf("Matrix 2: \n");
-  printMatrix(m2);
 
-  productConventional = allocateN2Init(dimension);
+  n0 = 128;
 
   clock_t b, f;
-
   b = clock();
-  ConvMult(productConventional, m1, m2, 0, 0, 0, 0, dimension);
+
+  // Only for testing
+  ConvMult(product, m1, m2, 0, 0, 0, 0, dimension);
   printf("Normal Multiplication: \n");
-  PrintDiagonal(productConventional);
+  PrintDiagonal(product);
   printf("\n");
+
   f = clock();
   double convTimeTaken = ((double)(f - b)) / CLOCKS_PER_SEC;
 
@@ -389,12 +415,15 @@ int main(int argc, char *argv[])
   }
   printf("Smart Strassen Multiplication: \n");
   PrintDiagonal(product);
+
   printf("\n");
   f = clock();
   double strassenTimeTaken = ((double)(f - b)) / CLOCKS_PER_SEC;
 
   printf("Conventional Time: %f\n", convTimeTaken);
   printf("Strassen Time: %f\n", strassenTimeTaken);
+
+
 
   return 0;
 
