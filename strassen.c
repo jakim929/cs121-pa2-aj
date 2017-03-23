@@ -12,6 +12,8 @@ int n0;
 
 int flexible;
 int dimension;
+int newDim;
+float dim;
 
 // Only for testing
 void printMatrix(int** matrix)
@@ -31,9 +33,9 @@ void printMatrix(int** matrix)
 // Only for testing
 void printOddMatrix(int** matrix)
 {
-  for(int i = 0; i < dimension+1; i++)
+  for(int i = 0; i < newDim; i++)
   {
-    for(int j = 0; j < dimension+1; j++)
+    for(int j = 0; j < newDim; j++)
     {
       printf("%i ", matrix[i][j]);
     }
@@ -53,20 +55,20 @@ void PrintDiagonal(int** matrix)
 
 int** allocateN2(int d)
 {
-  int ** temp = (int**) malloc(d * sizeof(int *));
+  int ** temp = (int**) calloc(d, sizeof(int *));
   for(int i = 0; i < d; i++)
   {
-    temp[i] = (int*) malloc(d * sizeof(int));
+    temp[i] = (int*) calloc(d, sizeof(int));
   }
   return temp;
 }
 
 int** allocateN2Init(int d)
 {
-  int ** temp = (int**) malloc(d * sizeof(int *));
+  int ** temp = (int**) calloc(d, sizeof(int *));
   for(int i = 0; i < d; i++)
   {
-    temp[i] = (int*) malloc(d * sizeof(int));
+    temp[i] = (int*) calloc(d, sizeof(int));
   }
   for(int i = 0; i < d; i++)
   {
@@ -307,12 +309,37 @@ int main(int argc, char *argv[])
   n0 = 128;
 
   // Initializing Solution Matrix
+
+  
+  printf("Dim = %d\n", dimension );
+  printf("Sqrt of Dim = %f\n", sqrt(dimension) );
+  dim = sqrt(dimension);
+
+  //MAKE SPECIAL CASE FOR SIZE 2X2 AS SQRT OF IT IS INCORRECT FOR SOME REASON
+  
+  // if (floorf(dim) != dim)
+  // {
+  //   printf("sqrt is an int \n");
+  // }
+
   // Padds m1 and m2 if dimension is odd
-  if (dimension % 2 != 0)
+  if (floorf(dim) != dim)
   {
-    product = allocateN2Init(dimension+1);
-    m1 = allocateN2(dimension+1);
-    m2 = allocateN2(dimension+1);
+    int powTwo = 2;
+    int num = 1;
+
+    while(dimension > powTwo)
+    {
+      num++;
+      powTwo = pow(2, num);
+    }
+
+    newDim = powTwo;
+    printf("new Dimension = %d\n", newDim );
+
+    product = allocateN2Init(newDim);
+    m1 = allocateN2(newDim);
+    m2 = allocateN2(newDim);
   } else {
     product = allocateN2Init(dimension);
     m1 = allocateN2(dimension);
@@ -370,33 +397,33 @@ int main(int argc, char *argv[])
         // printf("j = %d\n", j);
       }
     }
-    if (dimension % 2 != 0)
-    {
-      for(int i = 0; i < dimension+1; i++)
-      {
-          m1[dimension][i]=0;
-          m2[dimension][i]=0;
-          m1[i][dimension]=0;
-          m2[i][dimension]=0;
-        }
-       }
+    // if (dimension % 2 != 0)
+    // {
+    //   for(int i = 0; i < dimension+1; i++)
+    //   {
+    //       m1[dimension][i]=0;
+    //       m2[dimension][i]=0;
+    //       m1[i][dimension]=0;
+    //       m2[i][dimension]=0;
+    //     }
+    //    }
   }
 
   // For Testing
   printf("Matrix 1: \n");
-  // if (dimension % 2 != 0){
-  //   printOddMatrix(m1);
-  // } else{
+  if (floorf(dim) != dim){
+    printOddMatrix(m1);
+  } else{
     printMatrix(m1);
-  // }
+  }
   // printMatrix(m1);
   printf("\n");
   printf("Matrix 2: \n");
-  // if (dimension % 2 != 0){
-  //   printOddMatrix(m2);
-  // } else{
+  if (floorf(dim) != dim){
+    printOddMatrix(m2);
+  } else{
     printMatrix(m2);
-  // }
+  }
 
   clock_t b, f;
   //n0 = 128;
@@ -407,28 +434,28 @@ int main(int argc, char *argv[])
   // Only for testing
   ConvMult(product, m1, m2, 0, 0, 0, 0, dimension);
   printf("Normal Multiplication: \n");
-  // if (dimension % 2 != 0){
-  //   printOddMatrix(product);
-  // } else{
+  if (floorf(dim) != dim){
+    printOddMatrix(product);
+  } else{
     printMatrix(product);
-  // }
+  }
   printf("\n");
 
   f = clock();
   double convTimeTaken = ((double)(f - b)) / CLOCKS_PER_SEC;
   b = clock();
-  if (dimension % 2 != 0){
-    StrassMult(product, m1, m2, 0, 0, 0, 0, dimension+1);
+  if (floorf(dim) != dim){
+    StrassMult(product, m1, m2, 0, 0, 0, 0, newDim);
   } else{
     StrassMult(product, m1, m2, 0, 0, 0, 0, dimension);
   }
   printf("Smart Strassen Multiplication: \n");
   // PrintDiagonal(product);
-  // if (dimension % 2 != 0){
-  //   printOddMatrix(product);
-  // } else{
+  if (floorf(dim) != dim){
+    printOddMatrix(product);
+  } else{
     printMatrix(product);
-  // }
+  }
   printf("\n");
   f = clock();
   double strassenTimeTaken = ((double)(f - b)) / CLOCKS_PER_SEC;
