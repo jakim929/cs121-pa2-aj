@@ -411,19 +411,19 @@ int main(int argc, char *argv[])
 
   // For Testing
   printf("Matrix 1: \n");
-  if (floorf(dim) != dim){
-    printOddMatrix(m1);
-  } else{
+  // if (floorf(dim) != dim){
+  //   printOddMatrix(m1);
+  // } else{
     printMatrix(m1);
-  }
+  // }
   // printMatrix(m1);
   printf("\n");
   printf("Matrix 2: \n");
-  if (floorf(dim) != dim){
-    printOddMatrix(m2);
-  } else{
+  // if (floorf(dim) != dim){
+  //   printOddMatrix(m2);
+  // } else{
     printMatrix(m2);
-  }
+  // }
 
   clock_t b, f;
   //n0 = 128;
@@ -434,11 +434,11 @@ int main(int argc, char *argv[])
   // Only for testing
   ConvMult(product, m1, m2, 0, 0, 0, 0, dimension);
   printf("Normal Multiplication: \n");
-  if (floorf(dim) != dim){
-    printOddMatrix(product);
-  } else{
+  // if (floorf(dim) != dim){
+  //   printOddMatrix(product);
+  // } else{
     printMatrix(product);
-  }
+  // }
   printf("\n");
 
   f = clock();
@@ -451,11 +451,11 @@ int main(int argc, char *argv[])
   }
   printf("Smart Strassen Multiplication: \n");
   // PrintDiagonal(product);
-  if (floorf(dim) != dim){
-    printOddMatrix(product);
-  } else{
+  // if (floorf(dim) != dim){
+  //   printOddMatrix(product);
+  // } else{
     printMatrix(product);
-  }
+  // }
   printf("\n");
   f = clock();
   double strassenTimeTaken = ((double)(f - b)) / CLOCKS_PER_SEC;
