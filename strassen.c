@@ -40,7 +40,6 @@ void printOddMatrix(int** matrix)
     printf("\n");
   }
   printf("\n");
-
 }
 
 // Prints final solution as specified
@@ -51,7 +50,6 @@ void PrintDiagonal(int** matrix)
     printf("%i ", matrix[i][i]);
   }
 }
-
 
 int** allocateN2(int d)
 {
@@ -80,41 +78,13 @@ int** allocateN2Init(int d)
   return temp;
 }
 
-int** allocateAll(int d)
-{
-  int ** temp = (int**) malloc(d * sizeof(int *));
-  for(int i = 0; i < d+1; i++)
-  {
-    temp[i] = (int*) malloc(d * sizeof(int));
-  }
-  return temp;
-}
-
-int** allocateAllInit(int d)
-{
-  int ** temp = (int**) malloc(d * sizeof(int *));
-  for(int i = 0; i < d+1; i++)
-  {
-    temp[i] = (int*) malloc(d * sizeof(int));
-  }
-  for(int i = 0; i < d+1; i++)
-  {
-    for(int j = 0; j < d+1; j++)
-    {
-      temp[i][j] = 0;
-    }
-  }
-  return temp;
-}
-
-// For all values of n
+// Conventional Matrix Multiplication
 void ConvMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, int bRow, int bCol, int size)
 {
   for (int i=0; i < size; i++)
   {
     for (int k=0; k < size; k++)
     {
-      // result[i][j]=0;
       for (int j=0; j < size; j++)
       {
         result[i][j] = result[i][j]+matrix1[aRow + i][aCol + k]*matrix2[bRow + k][bCol + j];
@@ -123,6 +93,7 @@ void ConvMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, in
   }
 }
 
+// Adds two matrices together
 void sumMatrices(int** target, int** a, int** b, int targetRow, int targetCol, int aRow, int aCol, int bRow, int bCol, int size)
 {
   for(int i = 0; i < size; i++)
@@ -134,6 +105,7 @@ void sumMatrices(int** target, int** a, int** b, int targetRow, int targetCol, i
   }
 }
 
+// Subtracts two matrices
 void subtractMatrices(int** target, int** a, int** b, int targetRow, int targetCol, int aRow, int aCol, int bRow, int bCol, int size)
 {
   for(int i = 0; i < size; i++)
@@ -158,9 +130,10 @@ void copyMatrices(int** target, int** from, int aRow, int aCol, int size)
 }
 
 
-//for even n value
+//Strassen Multiplicatino Method
 void StrassMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, int bRow, int bCol, int size)
 {
+  // Special case, if the matrices are size 2x2
   if(size == 2)
   {
     int a = matrix1[aRow][aCol];
@@ -187,8 +160,6 @@ void StrassMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, 
     return;
   }
 
-
-  // Fix to accomodate odd numbers
   int sub_size = size/2;
 
 
@@ -229,11 +200,6 @@ void StrassMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, 
     //printf("Strassen!!!\n");
     // FIX to get rid of unnecessary copying
 
-    //Padding if n is not a power of 2
-    // if (size % 2 =! 1)
-    // {
-    //   // add empty row and column to
-    // }
     // P1
       copyMatrices(s1, matrix1, a_r, a_c, sub_size);
       subtractMatrices(s2, matrix2, matrix2, 0, 0, f_r, f_c, h_r, h_c, sub_size);
@@ -244,12 +210,10 @@ void StrassMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, 
       copyMatrices(s2, matrix2, h_r, h_c, sub_size);
       StrassMult(p2, s1, s2, 0, 0, 0, 0, sub_size);
 
-
     // P3
       sumMatrices(s1, matrix1, matrix1, 0, 0, c_r, c_c, d_r, d_c, sub_size);
       copyMatrices(s2, matrix2, e_r, e_c, sub_size);
       StrassMult(p3, s1, s2, 0, 0, 0, 0, sub_size);
-
 
     // P4
       copyMatrices(s1, matrix1, d_r, d_c, sub_size);
@@ -271,7 +235,7 @@ void StrassMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, 
       sumMatrices(s2, matrix2, matrix2, 0, 0, e_r, e_c, f_r, f_c, sub_size);
       StrassMult(p7, s1, s2, 0, 0, 0, 0, sub_size);
   }
-  else
+  else // If matrix is too small = more efficient to use regular multiplication
   {
     //printf("Normal!!!\n");
     // FIX to get rid of unnecessary copying
@@ -285,12 +249,10 @@ void StrassMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, 
       copyMatrices(s2, matrix2, h_r, h_c, sub_size);
       ConvMult(p2, s1, s2, 0, 0, 0, 0, sub_size);
 
-
     // P3
       sumMatrices(s1, matrix1, matrix1, 0, 0, c_r, c_c, d_r, d_c, sub_size);
       copyMatrices(s2, matrix2, e_r, e_c, sub_size);
       ConvMult(p3, s1, s2, 0, 0, 0, 0, sub_size);
-
 
     // P4
       copyMatrices(s1, matrix1, d_r, d_c, sub_size);
@@ -312,7 +274,6 @@ void StrassMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, 
       sumMatrices(s2, matrix2, matrix2, 0, 0, e_r, e_c, f_r, f_c, sub_size);
       ConvMult(p7, s1, s2, 0, 0, 0, 0, sub_size);
   }
-//
 
 // Combine Results
 // FIX make more efficient, don't do it one by one
@@ -332,7 +293,6 @@ void StrassMult(int** result, int** matrix1, int** matrix2, int aRow, int aCol, 
   subtractMatrices(result, result, p3, sub_size, sub_size, sub_size, sub_size, 0, 0, sub_size);
   subtractMatrices(result, result, p7, sub_size, sub_size, sub_size, sub_size, 0, 0, sub_size);
 
-
 }
 
 
@@ -343,9 +303,11 @@ int main(int argc, char *argv[])
   dimension = atoi(argv[2]);
   char* inputfile = argv[3];
 
+  // Cut-off threshold (Found experimentaly)
   n0 = 128;
 
   // Initializing Solution Matrix
+  // Padds m1 and m2 if dimension is odd
   if (dimension % 2 != 0)
   {
     product = allocateN2Init(dimension+1);
@@ -358,7 +320,6 @@ int main(int argc, char *argv[])
   }
   
   // Intermediate Calculations
-
 
   // If flag is 0, read from input file, otherwise fill random
   if(flexible == 0)
@@ -392,7 +353,7 @@ int main(int argc, char *argv[])
     }
     fclose(fp);
 
-  }else{
+  }else{ // flag is 1 then generate a random matrix with the given dimensions for testing
     srand(time(NULL));
     for(int i = 0 ; i < dimension; i++)
     {
@@ -405,8 +366,8 @@ int main(int argc, char *argv[])
         randomNumber = rand() % 10;
         m2[i][j] = randomNumber;
         
-        printf("i = %d\n", i );
-        printf("j = %d\n", j);
+        // printf("i = %d\n", i );
+        // printf("j = %d\n", j);
       }
     }
     if (dimension % 2 != 0)
@@ -418,9 +379,7 @@ int main(int argc, char *argv[])
           m1[i][dimension]=0;
           m2[i][dimension]=0;
         }
- 
-        //printf("%d\n", m1[dimension][dimension]);
-      }
+       }
   }
 
   // For Testing
